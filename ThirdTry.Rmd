@@ -1,0 +1,126 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r, warning=FALSE, message=FALSE}
+install.packages(c('ggthemes', 'scales'))
+```
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(ggthemes)
+library(scales)
+donor <- read.csv('https://goo.gl/tm9JQ5')
+police <- read.csv('https://goo.gl/nNAuDy')
+
+donor %>% head(2)
+# donor %>% ls()
+# donor %>% summary()
+
+# police %>% head(2)
+# police %>% ls()
+# police %>% summary()
+```
+
+```{r, warning=FALSE, message=FALSE}
+mpg %>% ggplot() + geom_point(aes(displ, hwy))
+```
+```{r}
+donor %>% ggplot(aes(primary_general)) + geom_bar()
+```
+
+```{r}
+donor %>% ggplot(aes(primary_general, fill = primary_general)) + geom_bar()
+```
+```{r}
+donor %>% 
+  ggplot(aes(primary_general, fill = primary_general)) + 
+  geom_bar() + 
+  labs(
+    x = 'Election Type'
+    , y = 'Donations (#)'
+    , fill = element_blank()
+    , title = 'Number of Donations by Election Type'
+    , subtitle = 'Over 6,000 full election cycle donations'
+    ) + 
+  scale_y_continuous(labels = comma) 
+```
+
+```{r}
+police %>% 
+  filter(district_sector %in% c('B', 'E', 'D', 'R', 'O', 'C', 'K') & event_clearance_group %in% c('TRAFFIC RELATED CALLS', 'FRAUD CALLS', 'BURGLARY', 'BIKE')) %>%
+  ggplot(aes(district_sector, fill = event_clearance_group)) + geom_bar() +
+  labs(x = 'District Sector'
+       , y = 'Incidences by Event\nClearance Group (#)'
+       , fill = element_blank()
+       , title = 'Incendences'
+       , subtitle = 'By district sector')+
+  theme_hc(bgcolor = "darkunica")+
+  scale_fill_pander()
+```
+
+```{r}
+police %>% str()
+```
+
+```{r}
+police %>% 
+  ggplot(aes(latitude, longitude, color = event_clearance_subgroup)) + 
+  geom_point() + 
+  theme_economist()
+```
+
+```{r}
+donor %>% 
+  group_by(type, party) %>% 
+  summarise(dollars = sum(amount, na.rm = TRUE)) %>%
+  ggplot(aes(type, dollars, fill = party)) + geom_bar(stat = "identity") + 
+  coord_flip() + 
+  scale_y_continuous(labels = dollar) + theme_classic()
+```
+
+```{r}
+donor %>% 
+  group_by(receipt_year, type) %>% 
+  summarise(total_amount = sum(amount, na.rm = TRUE)) %>%
+  ggplot(aes(receipt_year, total_amount, color = type)) +
+  geom_line(stat = 'identity') + 
+  scale_y_continuous(labels = dollar) + theme_classic()
+```
+```{r}
+donor %>%
+  group_by(contributor_state) %>%
+  summarise(mean_amount = mean(amount, na.rm = TRUE)) %>%
+  filter(! contributor_state %in% NA) %>%
+  ggplot(aes(contributor_state, mean_amount))+
+  geom_bar(stat = 'identity')+
+  scale_y_continuous(labels = dollar)+
+  theme_classic()
+```
+```{r}
+donor %>% 
+  group_by(contributor_state) %>% 
+  summarise(avg_amount = mean(amount, na.rm = TRUE)) %>%
+  filter(! contributor_state %in% NA) %>%
+  ggplot(aes(reorder(contributor_state, -avg_amount), avg_amount)) +
+  geom_bar(stat = 'identity') + 
+  scale_y_continuous(labels = dollar) + theme_classic()
+```
+
+```{r}
+police %>%
+  filter(!district_sector %in% c('NULL', NA, '99') & !event_clearance_ampm %in% NA) %>%
+  ggplot(aes(district_sector, fill = event_clearance_ampm))+
+  geom_bar()+
+  coord_flip()+
+  labs(x = 'District Sector'
+       , y = 'Incidences by time\nClearance Group (#)'
+       , fill = element_blank()
+       , title = 'Incendences'
+       , subtitle = 'By district sector and Time')+
+  theme_dark() + 
+  scale_fill_wsj()
+```
+
