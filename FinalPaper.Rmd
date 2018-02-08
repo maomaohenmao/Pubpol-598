@@ -1,0 +1,51 @@
+---
+title: "Final Paper"
+author: "Sony Suo"
+fontsize: 12pt
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, getting data}
+donor <- read.csv('https://raw.githubusercontent.com/maomaohenmao/r_course_evans_school/master/data/small_donations_data.csv')
+```
+
+```{r table1, echo=FALSE}
+library(tidyverse)
+library(lubridate)
+  donor %>% 
+  filter(contributor_employer_name %in% c('MICROSOFT', 'THE COCA-COLA COMPANY', 'NUCOR STEEL SEATTLE, INC.', 'FARMERS INSURANCE', 'UNIVERSITY OF WASHINGTON')) %>% 
+  group_by(contributor_employer_name) %>% 
+  summarise(avg_amount = mean(amount), max_amount = max(amount))
+```
+
+```{r table2, echo=FALSE}
+new_donor <- 
+  donor %>% 
+  filter(contributor_employer_name %in% c('MICROSOFT', 'THE COCA-COLA COMPANY', 'NUCOR STEEL SEATTLE, INC.', 'FARMERS INSURANCE', 'UNIVERSITY OF WASHINGTON')) %>%
+  mutate(party = ifelse(party %in% NA, 'Unknown', as.character(party)))
+new_donor %>% head()
+```
+
+```{r plot1, echo=FALSE}
+library(ggthemes)
+library(scales)
+new_donor %>%
+  ggplot(aes(party, amount)) + geom_bar(stat = "identity") + theme_economist() + labs(x = '', y = 'DonationAmnount (#)')
+```
+```{r plot2, echo=FALSE}
+donor_sds <- donor %>% 
+    filter(contributor_employer_name %in% c('MICROSOFT', 'THE COCA-COLA COMPANY'
+                                            , 'NUCOR STEEL SEATTLE, INC.'
+                                            , 'FARMERS INSURANCE' 
+                                            , 'UNIVERSITY OF WASHINGTON')) %>%
+    mutate(party = ifelse(party %in% NA, 'Unknown', as.character(party))) %>%
+    filter(! party %in% 'Unknown')
+donor_sds %>% 
+  ggplot(aes(x= contributor_state, fill = party)) + geom_bar() + theme_economist() + labs(x = 'State', y = '')
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

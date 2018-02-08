@@ -1,0 +1,12 @@
+\documentclass{article}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+
+This is a test!
+If you see a PDF document you are set!
+
+
+\end{document}
+
+
